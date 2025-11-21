@@ -1,5 +1,7 @@
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Subject, Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { ProductService } from './product.service';
 import { Product } from './product.interface';
 import { HeaderComponent } from '../shared/header/header.component';
@@ -19,8 +21,10 @@ import { ProductFiltersComponent } from './product-filters/product-filters.compo
   ],
   templateUrl: './productlist.html',
 })
-export class Productlist implements OnInit {
+export class Productlist implements OnInit, OnDestroy {
   private productService = inject(ProductService);
+  private searchSubject = new Subject<string>();
+  private searchSubscription?: Subscription;
 
   products = signal<Product[]>([]);
   isLoading = signal<boolean>(true);
@@ -43,8 +47,9 @@ export class Productlist implements OnInit {
 
     let result = products;
 
+    // Filter by Category
     if (selected.size > 0) {
-      result = products.filter((p) => selected.has(p.category));
+      result = result.filter((p) => selected.has(p.category));
     }
 
     // Create a shallow copy to avoid mutating the original array during sort
@@ -68,6 +73,35 @@ export class Productlist implements OnInit {
 
   ngOnInit() {
     this.loadProducts();
+    this.setupSearchSubscription();
+  }
+
+  ngOnDestroy() {
+    this.searchSubscription?.unsubscribe();
+  }
+
+  setupSearchSubscription() {
+    this.searchSubscription = this.searchSubject
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        switchMap((query) => {
+          this.isLoading.set(true);
+          return query
+            ? this.productService.searchProducts(query)
+            : this.productService.getProducts();
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          this.products.set(response.products);
+          this.isLoading.set(false);
+        },
+        error: (err) => {
+          this.error.set('Failed to load products. Please try again.');
+          this.isLoading.set(false);
+        },
+      });
   }
 
   loadProducts() {
@@ -100,5 +134,9 @@ export class Productlist implements OnInit {
   onSortChange(event: Event) {
     const value = (event.target as HTMLSelectElement).value;
     this.sortOption.set(value);
+  }
+
+  onSearch(query: string) {
+    this.searchSubject.next(query);
   }
 }
