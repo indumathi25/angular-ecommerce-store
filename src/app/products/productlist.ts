@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { AuthService } from '../core/auth.service';
 
 @Component({
   selector: 'app-productlist',
@@ -6,4 +7,10 @@ import { Component } from '@angular/core';
   imports: [],
   templateUrl: './productlist.html',
 })
-export class Productlist {}
+export class Productlist {
+  private authService = inject(AuthService);
+
+  logout(): void {
+    this.authService.logout();
+  }
+}

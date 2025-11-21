@@ -21,12 +21,9 @@
           aria-label="Username"
           aria-required="true"
         />
-        <span
-          *ngIf="loginForm.get('username')?.invalid && loginForm.get('username')?.touched"
-          class="text-xs text-red-500"
-        >
-          Username is required
-        </span>
+        @if (loginForm.get('username')?.invalid && loginForm.get('username')?.touched) {
+        <span class="text-xs text-red-500"> Username is required </span>
+        }
       </div>
 
       <!-- Password Field -->
@@ -44,22 +41,20 @@
           aria-label="Password"
           aria-required="true"
         />
-        <span
-          *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
-          class="text-xs text-red-500"
-        >
-          Password is required
-        </span>
+        @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+        <span class="text-xs text-red-500"> Password is required </span>
+        }
       </div>
 
       <!-- API Error Message -->
+      @if (errorMessage()) {
       <div
-        *ngIf="errorMessage()"
         class="bg-red-100 border border-red-500 rounded-md p-3 text-sm text-red-700"
         role="alert"
       >
         {{ errorMessage() }}
       </div>
+      }
 
       <!-- Demo Hint -->
       <div class="bg-green-50 border-l-4 border-green-500 p-3 rounded-md text-xs text-green-900">
