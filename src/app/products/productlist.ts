@@ -34,16 +34,36 @@ export class Productlist implements OnInit {
   });
 
   selectedCategories = signal<Set<string>>(new Set());
+  sortOption = signal<string>('featured');
 
   filteredProducts = computed(() => {
     const products = this.products();
     const selected = this.selectedCategories();
+    const sort = this.sortOption();
 
-    if (selected.size === 0) {
-      return products;
+    let result = products;
+
+    if (selected.size > 0) {
+      result = products.filter((p) => selected.has(p.category));
     }
 
-    return products.filter((p) => selected.has(p.category));
+    // Create a shallow copy to avoid mutating the original array during sort
+    result = [...result];
+
+    switch (sort) {
+      case 'price-low-high':
+        result.sort((a, b) => a.price - b.price);
+        break;
+      case 'price-high-low':
+        result.sort((a, b) => b.price - a.price);
+        break;
+      case 'rating':
+        result.sort((a, b) => b.rating - a.rating);
+        break;
+      // 'featured' or default: no sorting (or default API order)
+    }
+
+    return result;
   });
 
   ngOnInit() {
@@ -58,7 +78,6 @@ export class Productlist implements OnInit {
         this.isLoading.set(false);
       },
       error: (err) => {
-        // console.error('Error fetching products', err); // Removed to prevent sensitive data leak
         this.error.set('Failed to load products. Please try again.');
         this.isLoading.set(false);
       },
@@ -76,5 +95,10 @@ export class Productlist implements OnInit {
     }
 
     this.selectedCategories.set(currentSelected);
+  }
+
+  onSortChange(event: Event) {
+    const value = (event.target as HTMLSelectElement).value;
+    this.sortOption.set(value);
   }
 }
