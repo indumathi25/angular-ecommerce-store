@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
+import { AuthService } from '../core/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -10,22 +11,36 @@ import { Router } from '@angular/router';
   templateUrl: './login.html',
 })
 export class Login {
-  loginForm: any;
+  private fb = inject(FormBuilder);
+  private router = inject(Router);
+  private authService = inject(AuthService);
 
-  constructor(private readonly fb: FormBuilder, private readonly router: Router) {
-    this.loginForm = this.fb.group({
-      username: ['', Validators.required],
-      password: ['', Validators.required],
-    });
-  }
+  errorMessage = signal<string>('');
+
+  loginForm: FormGroup = this.fb.group({
+    username: ['', Validators.required],
+    password: ['', Validators.required],
+  });
 
   onSubmit(): void {
-    if (this.loginForm.valid) {
-      const { username, password } = this.loginForm.value;
-      console.log('Login submitted', { username, password });
-      this.router.navigate(['/products']);
-    } else {
+    if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
+      this.errorMessage.set('Please fill in all required fields.');
+      return;
     }
+
+    this.errorMessage.set('');
+
+    const { username, password } = this.loginForm.value;
+
+    this.authService.login(username!, password!).subscribe({
+      next: () => {
+        this.router.navigate(['/products']);
+      },
+      error: (err) => {
+        console.error('Login failed', err);
+        this.errorMessage.set('Invalid username or password');
+      },
+    });
   }
 }
