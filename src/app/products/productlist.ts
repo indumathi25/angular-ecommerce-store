@@ -1,4 +1,12 @@
-import { Component, inject, signal, computed, OnInit, OnDestroy } from '@angular/core';
+import {
+  Component,
+  inject,
+  signal,
+  computed,
+  OnInit,
+  OnDestroy,
+  WritableSignal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
@@ -26,9 +34,9 @@ export class Productlist implements OnInit, OnDestroy {
   private searchSubject = new Subject<string>();
   private searchSubscription?: Subscription;
 
-  products = signal<Product[]>([]);
-  isLoading = signal<boolean>(true);
-  error = signal<string | null>(null);
+  products: WritableSignal<Product[]> = signal<Product[]>([]);
+  isLoading: WritableSignal<boolean> = signal<boolean>(true);
+  error: WritableSignal<string | null> = signal<string | null>(null);
 
   // Derived state for categories
   categories = computed(() => {
@@ -37,8 +45,12 @@ export class Productlist implements OnInit, OnDestroy {
     return Array.from(uniqueCategories).sort();
   });
 
-  selectedCategories = signal<Set<string>>(new Set());
-  sortOption = signal<string>('featured');
+  selectedCategories: WritableSignal<Set<string>> = signal<Set<string>>(new Set());
+  sortOption: WritableSignal<string> = signal<string>('featured');
+
+  // Pagination
+  currentPage: WritableSignal<number> = signal<number>(1);
+  pageSize: WritableSignal<number> = signal<number>(12);
 
   filteredProducts = computed(() => {
     const products = this.products();
@@ -71,6 +83,18 @@ export class Productlist implements OnInit, OnDestroy {
     return result;
   });
 
+  paginatedProducts = computed(() => {
+    const products = this.filteredProducts();
+    const page = this.currentPage();
+    const size = this.pageSize();
+    const startIndex = (page - 1) * size;
+    return products.slice(startIndex, startIndex + size);
+  });
+
+  totalPages = computed(() => {
+    return Math.ceil(this.filteredProducts().length / this.pageSize());
+  });
+
   ngOnInit() {
     this.loadProducts();
     this.setupSearchSubscription();
@@ -87,6 +111,7 @@ export class Productlist implements OnInit, OnDestroy {
         distinctUntilChanged(),
         switchMap((query) => {
           this.isLoading.set(true);
+          this.currentPage.set(1); // Reset to first page on search
           return query
             ? this.productService.searchProducts(query)
             : this.productService.getProducts();
@@ -129,14 +154,23 @@ export class Productlist implements OnInit, OnDestroy {
     }
 
     this.selectedCategories.set(currentSelected);
+    this.currentPage.set(1); // Reset to first page on filter change
   }
 
   onSortChange(event: Event) {
     const value = (event.target as HTMLSelectElement).value;
     this.sortOption.set(value);
+    this.currentPage.set(1); // Reset to first page on sort change
   }
 
   onSearch(query: string) {
     this.searchSubject.next(query);
+  }
+
+  changePage(page: number) {
+    if (page >= 1 && page <= this.totalPages()) {
+      this.currentPage.set(page);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }
 }

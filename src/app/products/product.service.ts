@@ -10,11 +10,13 @@ export class ProductService {
   private http = inject(HttpClient);
   private apiUrl = 'https://dummyjson.com/products';
 
-  getProducts(): Observable<ProductResponse> {
-    return this.http.get<ProductResponse>(this.apiUrl);
+  getProducts(skip: number = 0, limit: number = 30): Observable<ProductResponse> {
+    return this.http.get<ProductResponse>(`${this.apiUrl}?skip=${skip}&limit=${limit}`);
   }
 
-  searchProducts(query: string): Observable<ProductResponse> {
-    return this.http.get<ProductResponse>(`${this.apiUrl}/search?q=${query}`);
+  searchProducts(query: string, skip: number = 0, limit: number = 30): Observable<ProductResponse> {
+    return this.http.get<ProductResponse>(
+      `${this.apiUrl}/search?q=${query}&skip=${skip}&limit=${limit}`
+    );
   }
 }

@@ -81,16 +81,40 @@
 
         <!-- Product Grid -->
         @if (!isLoading() && !error()) {
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          @for (product of filteredProducts(); track product.id) {
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          @for (product of paginatedProducts(); track product.id) {
           <app-product-card [product]="product"></app-product-card>
           }
         </div>
-        }
+
+        <!-- Pagination -->
+        @if (totalPages() > 1) {
+        <div class="flex justify-center items-center gap-2">
+          <button
+            (click)="changePage(currentPage() - 1)"
+            [disabled]="currentPage() === 1"
+            class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Previous
+          </button>
+
+          <span class="text-sm text-gray-700">
+            Page <span class="font-medium">{{ currentPage() }}</span> of
+            <span class="font-medium">{{ totalPages() }}</span>
+          </span>
+
+          <button
+            (click)="changePage(currentPage() + 1)"
+            [disabled]="currentPage() === totalPages()"
+            class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Next
+          </button>
+        </div>
+        } }
       </div>
     </div>
   </main>
-
   <!-- Footer -->
   <app-footer></app-footer>
 </div>
