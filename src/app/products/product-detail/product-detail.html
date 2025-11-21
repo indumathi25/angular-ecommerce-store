@@ -1,0 +1,56 @@
+<div class="min-h-screen bg-gray-50 flex flex-col font-sans">
+  <app-header></app-header>
+
+  <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+    <!-- Back Button -->
+    <button
+      (click)="goBack()"
+      class="mb-6 flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+    >
+      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M10 19l-7-7m0 0l7-7m-7 7h18"
+        />
+      </svg>
+      Back to Products
+    </button>
+
+    @if (isLoading()) {
+    <div class="flex justify-center items-center h-64">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500"></div>
+    </div>
+    } @if (error()) {
+    <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+            <path
+              fill-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm text-red-700">{{ error() }}</p>
+        </div>
+      </div>
+    </div>
+    } @if (product(); as p) {
+    <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 p-8">
+        <!-- Image Section -->
+        <app-product-image [product]="p"></app-product-image>
+
+        <!-- Details Section -->
+        <app-product-info [product]="p"></app-product-info>
+      </div>
+    </div>
+    }
+  </main>
+
+  <app-footer></app-footer>
+</div>
