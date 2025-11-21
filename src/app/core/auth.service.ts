@@ -96,8 +96,7 @@ export class AuthService {
       next: (user: User) => {
         this._currentUser.set(user);
       },
-      error: (err) => {
-        console.error('Session restore failed', err);
+      error: () => {
         this.logout();
       },
     });

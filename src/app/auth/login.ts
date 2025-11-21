@@ -44,8 +44,7 @@ export class Login {
       next: () => {
         this.router.navigate(['/products']);
       },
-      error: (err) => {
-        console.error('Login failed', err);
+      error: () => {
         this.errorMessage.set('Invalid username or password');
       },
     });
