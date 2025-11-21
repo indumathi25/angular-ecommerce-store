@@ -1,5 +1,6 @@
 <div
-  class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col group"
+  class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col group cursor-pointer"
+  [routerLink]="['/products', product.id]"
 >
   <!-- Image Container -->
   <div class="relative h-56 bg-gray-50 overflow-hidden">

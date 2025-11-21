@@ -5,9 +5,9 @@ import { setCookie } from '../../core/cookie.utils';
 @Component({
   selector: 'app-header',
   standalone: true,
-  templateUrl: './header.component.html',
+  templateUrl: './header.html',
 })
-export class HeaderComponent {
+export class Header {
   private authService = inject(AuthService);
 
   @Output() searchChange = new EventEmitter<string>();

@@ -5,9 +5,9 @@ import { CommonModule } from '@angular/common';
   selector: 'app-product-filters',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './product-filters.component.html',
+  templateUrl: './product-filters.html',
 })
-export class ProductFiltersComponent {
+export class ProductFilters {
   @Input({ required: true }) categories: string[] = [];
   @Input({ required: true }) selectedCategories: Set<string> = new Set();
   @Output() categoryChange = new EventEmitter<{ category: string; isChecked: boolean }>();

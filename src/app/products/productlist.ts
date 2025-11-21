@@ -12,21 +12,15 @@ import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { ProductService } from './product.service';
 import { Product } from './product.interface';
-import { HeaderComponent } from '../shared/header/header.component';
-import { FooterComponent } from '../shared/footer/footer.component';
-import { ProductCardComponent } from './product-card/product-card.component';
-import { ProductFiltersComponent } from './product-filters/product-filters.component';
+import { Header } from '../shared/header/header';
+import { Footer } from '../shared/footer/footer';
+import { ProductCard } from './product-card/product-card';
+import { ProductFilters } from './product-filters/product-filters';
 
 @Component({
   selector: 'app-productlist',
   standalone: true,
-  imports: [
-    CommonModule,
-    HeaderComponent,
-    FooterComponent,
-    ProductCardComponent,
-    ProductFiltersComponent,
-  ],
+  imports: [CommonModule, Header, Footer, ProductCard, ProductFilters],
   templateUrl: './productlist.html',
 })
 export class Productlist implements OnInit, OnDestroy {
