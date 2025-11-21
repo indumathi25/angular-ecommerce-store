@@ -1,7 +1,7 @@
 import { Injectable, inject, signal, PLATFORM_ID } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpBackend } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { tap } from 'rxjs';
+import { tap, throwError } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 import { User } from './user.interface';
 import { getCookie, setCookie, deleteCookie } from './cookie.utils';
@@ -9,10 +9,13 @@ import { getCookie, setCookie, deleteCookie } from './cookie.utils';
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private http = inject(HttpClient);
+  private httpBackend = inject(HttpBackend);
+  private httpClientForRefresh = new HttpClient(this.httpBackend);
   private router = inject(Router);
   private platformId = inject(PLATFORM_ID);
 
-  currentUserSignal = signal<User | null>(null);
+  private _currentUser = signal<User | null>(null);
+  readonly currentUser = this._currentUser.asReadonly();
 
   constructor() {
     if (isPlatformBrowser(this.platformId)) {
@@ -34,24 +37,44 @@ export class AuthService {
       )
       .pipe(
         tap((user: User) => {
-          this.currentUserSignal.set(user);
+          this._currentUser.set(user);
           if (isPlatformBrowser(this.platformId)) {
             setCookie('accessToken', user.accessToken, 1);
+            setCookie('refreshToken', user.refreshToken, 7);
           }
         })
       );
   }
 
+  refreshSession() {
+    if (!isPlatformBrowser(this.platformId)) return throwError(() => 'SSR');
+    const refreshToken = getCookie('refreshToken');
+    if (!refreshToken) return throwError(() => 'No refresh token');
+
+    return this.httpClientForRefresh
+      .post<any>('https://dummyjson.com/auth/refresh', {
+        refreshToken,
+        expiresInMins: 30,
+      })
+      .pipe(
+        tap((tokens) => {
+          setCookie('accessToken', tokens.accessToken || tokens.token, 1);
+          setCookie('refreshToken', tokens.refreshToken, 7);
+        })
+      );
+  }
+
   logout() {
-    this.currentUserSignal.set(null);
+    this._currentUser.set(null);
     if (isPlatformBrowser(this.platformId)) {
       deleteCookie('accessToken');
+      deleteCookie('refreshToken');
     }
     this.router.navigate(['/login']);
   }
 
   isAuthenticated() {
-    if (this.currentUserSignal()) {
+    if (this.currentUser()) {
       return true;
     }
     if (isPlatformBrowser(this.platformId)) {
@@ -71,7 +94,7 @@ export class AuthService {
   private fetchCurrentUser(token: string) {
     this.http.get<User>('https://dummyjson.com/auth/me').subscribe({
       next: (user: User) => {
-        this.currentUserSignal.set(user);
+        this._currentUser.set(user);
       },
       error: (err) => {
         console.error('Session restore failed', err);
