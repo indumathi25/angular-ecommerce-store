@@ -12,5 +12,6 @@ import { environment } from '../../../environments/environment';
 })
 export class ProductCard {
   @Input({ required: true }) product!: Product;
+  @Input() priority = false;
   lowStockThreshold = environment.lowStockThreshold;
 }

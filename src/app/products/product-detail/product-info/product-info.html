@@ -1,7 +1,7 @@
 <div class="flex flex-col h-full">
   <div class="flex items-center gap-2 mb-4">
     <span
-      class="text-sm font-medium text-yellow-600 bg-yellow-50 px-3 py-1 rounded-full uppercase tracking-wide"
+      class="text-sm font-medium text-yellow-800 bg-yellow-50 px-3 py-1 rounded-full uppercase tracking-wide"
     >
       {{ product.category }}
     </span>
@@ -41,7 +41,7 @@
       </span>
       @if (product.discountPercentage > 0) {
       <div class="flex flex-col mb-1">
-        <span class="text-sm font-bold text-red-500"> -{{ product.discountPercentage }}% OFF </span>
+        <span class="text-sm font-bold text-red-600"> -{{ product.discountPercentage }}% OFF </span>
       </div>
       }
     </div>
