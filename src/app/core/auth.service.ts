@@ -5,6 +5,7 @@ import { tap, throwError } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 import { User } from './user.interface';
 import { getCookie, setCookie, deleteCookie } from './cookie.utils';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -29,7 +30,7 @@ export class AuthService {
   login(username: string, password: string) {
     return this.http
       .post<User>(
-        'https://dummyjson.com/auth/login',
+        `${environment.apiUrl}/auth/login`,
         { username, password, expiresInMins: 30 },
         {
           headers: { 'Content-Type': 'application/json' },
@@ -52,7 +53,7 @@ export class AuthService {
     if (!refreshToken) return throwError(() => 'No refresh token');
 
     return this.httpClientForRefresh
-      .post<any>('https://dummyjson.com/auth/refresh', {
+      .post<any>(`${environment.apiUrl}/auth/refresh`, {
         refreshToken,
         expiresInMins: 30,
       })
@@ -92,7 +93,7 @@ export class AuthService {
   }
 
   private fetchCurrentUser(token: string) {
-    this.http.get<User>('https://dummyjson.com/auth/me').subscribe({
+    this.http.get<User>(`${environment.apiUrl}/auth/me`).subscribe({
       next: (user: User) => {
         this._currentUser.set(user);
       },

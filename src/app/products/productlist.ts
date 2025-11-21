@@ -16,6 +16,7 @@ import { Header } from '../shared/header/header';
 import { Footer } from '../shared/footer/footer';
 import { ProductCard } from './product-card/product-card';
 import { ProductFilters } from './product-filters/product-filters';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-productlist',
@@ -44,7 +45,7 @@ export class Productlist implements OnInit, OnDestroy {
 
   // Pagination
   currentPage: WritableSignal<number> = signal<number>(1);
-  pageSize: WritableSignal<number> = signal<number>(12);
+  pageSize: WritableSignal<number> = signal<number>(environment.pageSize);
 
   filteredProducts = computed(() => {
     const products = this.products();
@@ -116,7 +117,7 @@ export class Productlist implements OnInit, OnDestroy {
           this.products.set(response.products);
           this.isLoading.set(false);
         },
-        error: (err) => {
+        error: () => {
           this.error.set('Failed to load products. Please try again.');
           this.isLoading.set(false);
         },

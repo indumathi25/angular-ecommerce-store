@@ -8,27 +8,10 @@
 
       <!-- Search Bar (Desktop) -->
       <div class="hidden md:flex flex-1 max-w-2xl relative">
-        <input
-          type="text"
-          (input)="onSearch($event)"
-          class="w-full bg-gray-800 text-white border-none rounded-l-md py-2 px-4 focus:ring-2 focus:ring-yellow-500 placeholder-gray-400"
-          placeholder="Search for products, brands and more..."
-        />
-        <button
-          class="bg-yellow-500 text-gray-900 px-6 py-2 rounded-r-md font-medium hover:bg-yellow-400 transition-colors"
-        >
-          Search
-        </button>
-      </div>
-
-      <!-- Actions -->
-      <div class="flex items-center gap-6">
-        <div class="h-6 w-px bg-gray-700 hidden sm:block"></div>
-        <div class="flex items-center gap-4">
-          <button class="text-gray-300 hover:text-white relative">
+        <div class="relative w-full">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-6 w-6"
+              class="h-5 w-5 text-gray-400"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -37,14 +20,23 @@
                 stroke-linecap="round"
                 stroke-linejoin="round"
                 stroke-width="2"
-                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
               />
             </svg>
-            <span
-              class="absolute -top-2 -right-2 bg-yellow-500 text-gray-900 text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center"
-              >0</span
-            >
-          </button>
+          </div>
+          <input
+            type="text"
+            (input)="onSearch($event)"
+            class="w-full bg-gray-800 text-white border-none rounded-md py-2 pl-10 pr-4 focus:ring-2 focus:ring-yellow-500 placeholder-gray-400"
+            placeholder="Search for products, brands and more..."
+          />
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex items-center gap-6">
+        <div class="h-6 w-px bg-gray-700 hidden sm:block"></div>
+        <div class="flex items-center gap-4">
           <button
             (click)="logout()"
             class="text-sm font-medium text-white bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-md transition-colors border border-gray-700 hidden sm:block"

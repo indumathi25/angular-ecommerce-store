@@ -33,11 +33,8 @@ module.exports = {
     { pattern: /^font-/ },
     { pattern: /^cursor-/ },
     { pattern: /^transition/ },
-    { pattern: /^hover:/ },
-    { pattern: /^disabled:/ },
     { pattern: /^border/ },
     { pattern: /^w-/ },
-    { pattern: /^focus:/ },
   ],
   plugins: [],
 };
