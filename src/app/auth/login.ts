@@ -3,6 +3,11 @@ import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angula
 import { Router } from '@angular/router';
 import { AuthService } from '../core/auth.service';
 
+/**
+ * Login Component
+ * Handles user authentication by capturing username and password.
+ * Uses AuthService to perform the login operation.
+ */
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -16,11 +21,20 @@ export class Login {
 
   errorMessage = signal<string>('');
 
+  /**
+   * Form group for login credentials.
+   * Contains 'username' and 'password' fields with required validation.
+   */
   loginForm: FormGroup = this.fb.group({
     username: ['', Validators.required],
     password: ['', Validators.required],
   });
 
+  /**
+   * Handles the form submission.
+   * Validates the form, calls AuthService.login, and navigates to products on success.
+   * Displays an error message on failure.
+   */
   onSubmit(): void {
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();

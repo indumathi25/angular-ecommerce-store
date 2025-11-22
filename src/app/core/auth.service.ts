@@ -7,6 +7,10 @@ import { User, AuthTokenResponse } from './user.interface';
 import { getCookie, setCookie, deleteCookie } from './cookie.utils';
 import { environment } from '../../environments/environment';
 
+/**
+ * Service to handle user authentication.
+ * Manages login, logout, session refresh, and current user state.
+ */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private http = inject(HttpClient);
@@ -22,11 +26,18 @@ export class AuthService {
     if (isPlatformBrowser(this.platformId)) {
       const token = getCookie('accessToken');
       if (token) {
-        this.fetchCurrentUser(token);
+        this.fetchCurrentUser();
       }
     }
   }
 
+  /**
+   * Authenticates the user with username and password.
+   * Stores the access and refresh tokens in cookies upon successful login.
+   * @param username The user's username.
+   * @param password The user's password.
+   * @returns An Observable of the User object.
+   */
   login(username: string, password: string) {
     return this.http
       .post<User>(
@@ -47,6 +58,10 @@ export class AuthService {
       );
   }
 
+  /**
+   * Refreshes the user's session using the refresh token stored in cookies.
+   * @returns An Observable of the new tokens.
+   */
   refreshSession() {
     if (!isPlatformBrowser(this.platformId)) return throwError(() => 'SSR');
     const refreshToken = getCookie('refreshToken');
@@ -65,6 +80,10 @@ export class AuthService {
       );
   }
 
+  /**
+   * Logs the user out by clearing the session and removing cookies.
+   * Redirects to the login page.
+   */
   logout() {
     this._currentUser.set(null);
     if (isPlatformBrowser(this.platformId)) {
@@ -74,6 +93,10 @@ export class AuthService {
     this.router.navigate(['/login']);
   }
 
+  /**
+   * Checks if the user is currently authenticated.
+   * @returns True if the user is logged in, false otherwise.
+   */
   isAuthenticated() {
     if (this.currentUser()) {
       return true;
@@ -85,6 +108,10 @@ export class AuthService {
     return true;
   }
 
+  /**
+   * Retrieves the access token from cookies.
+   * @returns The access token string or null if not found.
+   */
   getToken(): string | null {
     if (isPlatformBrowser(this.platformId)) {
       return getCookie('accessToken');
@@ -92,7 +119,11 @@ export class AuthService {
     return null;
   }
 
-  private fetchCurrentUser(token: string) {
+  /**
+   * Fetches the current user's profile from the server.
+   * The authentication token is automatically added by the AuthInterceptor.
+   */
+  private fetchCurrentUser() {
     this.http.get<User>(`${environment.apiUrl}/auth/me`).subscribe({
       next: (user: User) => {
         this._currentUser.set(user);

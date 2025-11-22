@@ -10,6 +10,10 @@ import { getCookie } from './cookie.utils';
 import { AuthService } from './auth.service';
 import { AuthTokenResponse } from './user.interface';
 
+/**
+ * Intercepts HTTP requests to add the authentication token.
+ * Also handles 401 Unauthorized errors by attempting to refresh the session.
+ */
 export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
   const injector = inject(Injector);
   const token = getCookie('accessToken');
@@ -26,6 +30,12 @@ export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
   );
 };
 
+/**
+ * Clones the request and adds the Authorization header with the provided token.
+ * @param request The original HTTP request.
+ * @param token The access token to add.
+ * @returns The cloned request with the Authorization header.
+ */
 function addToken(request: HttpRequest<unknown>, token: string | null): HttpRequest<unknown> {
   if (!token) return request;
   return request.clone({
@@ -33,6 +43,15 @@ function addToken(request: HttpRequest<unknown>, token: string | null): HttpRequ
   });
 }
 
+/**
+ * Handles 401 Unauthorized errors.
+ * Attempts to refresh the session and retry the original request with the new token.
+ * If refresh fails, logs the user out.
+ * @param request The original HTTP request that failed.
+ * @param next The HTTP handler.
+ * @param injector The dependency injector to get AuthService.
+ * @returns An Observable of the HTTP event.
+ */
 function handle401Error(request: HttpRequest<unknown>, next: HttpHandlerFn, injector: Injector) {
   const authService = injector.get(AuthService);
 
