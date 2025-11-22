@@ -9,6 +9,8 @@ export const routes: Routes = [
   },
   {
     path: 'login',
+    canActivate: [AuthGuard],
+    data: { requiresAuth: false },
     loadComponent: () => import('./auth/login').then((m) => m.Login),
   },
   {

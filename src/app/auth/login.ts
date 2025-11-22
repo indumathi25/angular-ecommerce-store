@@ -1,8 +1,7 @@
-import { Component, inject, signal, PLATFORM_ID } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../core/auth.service';
-import { isPlatformBrowser } from '@angular/common';
 
 @Component({
   selector: 'app-login',
@@ -14,15 +13,8 @@ export class Login {
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private authService = inject(AuthService);
-  private platformId = inject(PLATFORM_ID);
 
   errorMessage = signal<string>('');
-
-  constructor() {
-    if (isPlatformBrowser(this.platformId) && this.authService.isAuthenticated()) {
-      this.router.navigate(['/products']);
-    }
-  }
 
   loginForm: FormGroup = this.fb.group({
     username: ['', Validators.required],

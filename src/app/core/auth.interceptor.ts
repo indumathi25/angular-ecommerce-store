@@ -1,42 +1,49 @@
-import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
+import {
+  HttpInterceptorFn,
+  HttpErrorResponse,
+  HttpRequest,
+  HttpHandlerFn,
+} from '@angular/common/http';
 import { inject, Injector } from '@angular/core';
 import { catchError, switchMap, throwError } from 'rxjs';
 import { getCookie } from './cookie.utils';
 import { AuthService } from './auth.service';
+import { AuthTokenResponse } from './user.interface';
 
 export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
   const injector = inject(Injector);
   const token = getCookie('accessToken');
 
-  // Clone request if token exists
-  const authReq = token
-    ? req.clone({
-        setHeaders: { Authorization: `Bearer ${token}` },
-      })
-    : req;
+  const authReq = addToken(req, token);
 
   return next(authReq).pipe(
     catchError((error) => {
       if (error instanceof HttpErrorResponse && error.status === 401) {
-        console.log('AuthInterceptor: 401 detected, attempting refresh...');
-        const authService = injector.get(AuthService);
-        // Attempt to refresh session once
-        return authService.refreshSession().pipe(
-          switchMap((newTokens: any) => {
-            const newToken = newTokens.accessToken || newTokens.token;
-            const retryReq = req.clone({
-              setHeaders: { Authorization: `Bearer ${newToken}` },
-            });
-            return next(retryReq);
-          }),
-          catchError((refreshErr) => {
-            // clear state and redirect
-            authService.logout();
-            return throwError(() => refreshErr);
-          })
-        );
+        return handle401Error(req, next, injector);
       }
       return throwError(() => error);
     })
   );
 };
+
+function addToken(request: HttpRequest<unknown>, token: string | null): HttpRequest<unknown> {
+  if (!token) return request;
+  return request.clone({
+    setHeaders: { Authorization: `Bearer ${token}` },
+  });
+}
+
+function handle401Error(request: HttpRequest<unknown>, next: HttpHandlerFn, injector: Injector) {
+  const authService = injector.get(AuthService);
+
+  return authService.refreshSession().pipe(
+    switchMap((newTokens: AuthTokenResponse) => {
+      const newToken = newTokens.accessToken || newTokens.token || '';
+      return next(addToken(request, newToken));
+    }),
+    catchError((refreshError) => {
+      authService.logout();
+      return throwError(() => refreshError);
+    })
+  );
+}

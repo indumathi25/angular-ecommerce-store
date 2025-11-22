@@ -3,7 +3,7 @@ import { HttpClient, HttpBackend } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { tap, throwError } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
-import { User } from './user.interface';
+import { User, AuthTokenResponse } from './user.interface';
 import { getCookie, setCookie, deleteCookie } from './cookie.utils';
 import { environment } from '../../environments/environment';
 
@@ -53,13 +53,13 @@ export class AuthService {
     if (!refreshToken) return throwError(() => 'No refresh token');
 
     return this.httpClientForRefresh
-      .post<any>(`${environment.apiUrl}/auth/refresh`, {
+      .post<AuthTokenResponse>(`${environment.apiUrl}/auth/refresh`, {
         refreshToken,
         expiresInMins: 30,
       })
       .pipe(
         tap((tokens) => {
-          setCookie('accessToken', tokens.accessToken || tokens.token, 1);
+          setCookie('accessToken', tokens.accessToken || tokens.token || '', 1);
           setCookie('refreshToken', tokens.refreshToken, 7);
         })
       );
