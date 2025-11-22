@@ -9,9 +9,7 @@ import { environment } from '../../environments/environment';
  * Handles fetching products, searching, and retrieving product details.
  * Interacts with the backend proxy via the configured API URL.
  */
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class ProductService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}/products`;

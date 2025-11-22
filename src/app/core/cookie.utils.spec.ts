@@ -33,4 +33,19 @@ describe('Cookie Utils', () => {
     deleteCookie(name);
     expect(getCookie(name)).toBeNull();
   });
+
+  // Positive: Special characters
+  it('should handle cookies with special characters', () => {
+    const name = 'specialCookie';
+    const value = 'email@example.com|token=123';
+    setCookie(name, value, 1);
+    expect(getCookie(name)).toBe(value);
+  });
+
+  // Negative: Partial name match
+  it('should not return value for partial name match', () => {
+    setCookie('myToken', '12345', 1);
+    // 'Token' is a substring of 'myToken', but should not match
+    expect(getCookie('Token')).toBeNull();
+  });
 });

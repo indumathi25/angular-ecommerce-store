@@ -84,7 +84,6 @@ export class Productlist implements OnInit, OnDestroy {
       case 'rating':
         result.sort((a, b) => b.rating - a.rating);
         break;
-      // 'featured' or default: no sorting (or default API order)
     }
 
     return result;

@@ -8,7 +8,7 @@ import { AuthService } from './auth.service';
  *
  * - If the route requires authentication (default) and the user is logged in, access is granted.
  * - If the route requires authentication and the user is NOT logged in, they are redirected to the login page.
- * - If the route is for guests (e.g., login page) and the user IS logged in, they are redirected to the products page.
+ * - If the route is for guests (e.g., login page) and the user is logged in, they are redirected to the products page.
  *
  * @param route The activated route snapshot.
  * @returns True if navigation is allowed, false otherwise.
