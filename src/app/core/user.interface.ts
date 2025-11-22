@@ -13,5 +13,5 @@ export interface User {
 export interface AuthTokenResponse {
   accessToken: string;
   refreshToken: string;
-  token?: string; // Fallback for some APIs
+  token?: string;
 }

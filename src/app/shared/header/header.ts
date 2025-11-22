@@ -1,6 +1,5 @@
 import { Component, inject, Output, EventEmitter } from '@angular/core';
 import { AuthService } from '../../core/auth.service';
-import { setCookie } from '../../core/cookie.utils';
 
 @Component({
   selector: 'app-header',
