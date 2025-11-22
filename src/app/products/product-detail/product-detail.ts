@@ -35,8 +35,9 @@ export class ProductDetail implements OnInit {
    */
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.loadProduct(Number(id));
+    const productId = Number(id);
+    if (id && !isNaN(productId)) {
+      this.loadProduct(productId);
     } else {
       this.error.set('Invalid product ID');
       this.isLoading.set(false);

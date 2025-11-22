@@ -1,5 +1,6 @@
-import { Component, inject, Output, EventEmitter } from '@angular/core';
+import { Component, inject, Output, EventEmitter, Input } from '@angular/core';
 import { AuthService } from '../../core/auth.service';
+import { CommonModule } from '@angular/common';
 
 /**
  * Header Component
@@ -8,10 +9,17 @@ import { AuthService } from '../../core/auth.service';
 @Component({
   selector: 'app-header',
   standalone: true,
+  imports: [CommonModule],
   templateUrl: './header.html',
 })
 export class Header {
   private authService = inject(AuthService);
+
+  /**
+   * Controls the visibility of the search bar.
+   * Defaults to true.
+   */
+  @Input() showSearch = true;
 
   /**
    * Event emitted when the user types in the search bar.
