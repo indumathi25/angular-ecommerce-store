@@ -313,15 +313,6 @@ This was not implemented because the backend did not support cookie issuance so 
 - **Tailwind Setup:** Standard configuration from Tailwind CSS documentation for Angular.
 - **Docker Config:** Standard multi-stage build pattern for Angular SSR applications.
 
-### Lighthouse Performance Scores
-
-| Category           | Score  |
-| :----------------- | :----- |
-| **Performance**    | 🟢 90  |
-| **Accessibility**  | 🟢 100 |
-| **Best Practices** | 🟢 96  |
-| **SEO**            | 🟢 100 |
-
 ### Environment Configuration
 
 The application uses environment variables for configuration.
@@ -342,3 +333,24 @@ The application uses environment variables for configuration.
 - `API_URL`: The base URL for the backend API.
 - `PAGE_SIZE`: Number of items to display per page in lists.
 - `LOW_STOCK_THRESHOLD`: Threshold for displaying low stock warnings.
+
+### CI/CD Pipeline
+
+A Continuous Integration (CI) pipeline is configured using GitHub Actions. It runs automatically on every push to the `main` and `feature/*` branches, as well as on pull requests.
+
+The pipeline performs the following checks:
+
+1.  **Install Dependencies:** Installs project dependencies using `npm ci`.
+2.  **Linting:** Runs `npm run lint` to ensure code quality and adherence to coding standards.
+3.  **Unit Tests:** Runs `npm run test` (using Vitest) to verify application logic.
+
+This ensures that all code changes are validated before being merged, maintaining the stability and quality of the codebase.
+
+### Lighthouse Performance Scores
+
+| Category           | Score  |
+| :----------------- | :----- |
+| **Performance**    | 🟢 90  |
+| **Accessibility**  | 🟢 100 |
+| **Best Practices** | 🟢 96  |
+| **SEO**            | 🟢 100 |
