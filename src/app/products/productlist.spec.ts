@@ -4,6 +4,7 @@ import { of } from 'rxjs';
 import { vi } from 'vitest';
 import { Productlist } from './productlist';
 import { ProductService } from './product.service';
+import { signal } from '@angular/core';
 
 describe('Productlist', () => {
   let component: Productlist;
@@ -15,6 +16,12 @@ describe('Productlist', () => {
     mockProductService = {
       getProducts: vi.fn().mockReturnValue(of({ products: [], total: 0, skip: 0, limit: 0 })),
       searchProducts: vi.fn().mockReturnValue(of({ products: [], total: 0, skip: 0, limit: 0 })),
+      productsState: signal([]),
+      searchQueryState: signal(''),
+      selectedCategoriesState: signal(new Set()),
+      sortOptionState: signal('featured'),
+      currentPageState: signal(1),
+      isStateInitialized: signal(false),
     };
 
     await TestBed.configureTestingModule({

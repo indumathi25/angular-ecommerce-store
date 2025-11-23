@@ -186,7 +186,7 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
 To start a local development server, run:
 
 ```bash
-npm start
+make start
 ```
 
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
@@ -210,13 +210,19 @@ ng generate --help
 To build and run the application using Docker:
 
 ```bash
-npm run docker
+make docker-up
+```
+
+To stop the Docker containers:
+
+```bash
+make docker-down
 ```
 
 To build the project locally, run:
 
 ```bash
-npm run build
+make build
 ```
 
 This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
@@ -226,7 +232,23 @@ This will compile your project and store the build artifacts in the `dist/` dire
 To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
 
 ```bash
-npm test
+make test
+```
+
+## Linting
+
+To run linting checks:
+
+```bash
+make lint
+```
+
+## Cleaning
+
+To clean the distribution directory:
+
+```bash
+make clean
 ```
 
 ## Running in SSR mode
@@ -299,3 +321,24 @@ This was not implemented because the backend did not support cookie issuance so 
 | **Accessibility**  | 🟢 100 |
 | **Best Practices** | 🟢 96  |
 | **SEO**            | 🟢 100 |
+
+### Environment Configuration
+
+The application uses environment variables for configuration.
+
+- **.env**: This file is used for local development and contains sensitive or environment-specific variables. It is **ignored by git** for security.
+- **.env.example**: This file serves as a template. It contains all the required environment variables with placeholder or default values.
+
+**Setup:**
+
+1. Copy `.env.example` to `.env`:
+   ```bash
+   cp .env.example .env
+   ```
+2. Update the values in `.env` as needed for your local environment.
+
+**Variables:**
+
+- `API_URL`: The base URL for the backend API.
+- `PAGE_SIZE`: Number of items to display per page in lists.
+- `LOW_STOCK_THRESHOLD`: Threshold for displaying low stock warnings.
