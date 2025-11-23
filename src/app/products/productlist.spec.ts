@@ -8,6 +8,7 @@ import { ProductService } from './product.service';
 describe('Productlist', () => {
   let component: Productlist;
   let fixture: ComponentFixture<Productlist>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let mockProductService: any;
 
   beforeEach(async () => {

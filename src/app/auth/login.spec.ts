@@ -9,7 +9,9 @@ import { vi } from 'vitest';
 describe('Login Component', () => {
   let component: Login;
   let fixture: ComponentFixture<Login>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let authServiceMock: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let routerMock: any;
 
   beforeEach(async () => {

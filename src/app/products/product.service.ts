@@ -29,7 +29,7 @@ export class ProductService {
    * @param limit The maximum number of items to return. Defaults to 30.
    * @returns An Observable containing the product response (list and metadata).
    */
-  getProducts(skip: number = 0, limit: number = 30): Observable<ProductResponse> {
+  getProducts(skip = 0, limit = 30): Observable<ProductResponse> {
     return this.http.get<ProductResponse>(`${this.apiUrl}?skip=${skip}&limit=${limit}`);
   }
 
@@ -40,7 +40,7 @@ export class ProductService {
    * @param limit The maximum number of items to return. Defaults to 30.
    * @returns An Observable containing the search results.
    */
-  searchProducts(query: string, skip: number = 0, limit: number = 30): Observable<ProductResponse> {
+  searchProducts(query: string, skip = 0, limit = 30): Observable<ProductResponse> {
     return this.http.get<ProductResponse>(
       `${this.apiUrl}/search?q=${query}&skip=${skip}&limit=${limit}`
     );

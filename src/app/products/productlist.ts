@@ -11,7 +11,6 @@ import { CommonModule } from '@angular/common';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { ProductService } from './product.service';
-import { Product } from './product.interface';
 import { Header } from '../shared/header/header';
 import { Footer } from '../shared/footer/footer';
 import { ProductCard } from './product-card/product-card';
@@ -172,7 +171,7 @@ export class Productlist implements OnInit, OnDestroy {
         this.productService.isStateInitialized.set(true);
         this.isLoading.set(false);
       },
-      error: (err) => {
+      error: () => {
         this.error.set('Failed to load products. Please try again.');
         this.isLoading.set(false);
       },

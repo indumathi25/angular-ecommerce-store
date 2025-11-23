@@ -14,7 +14,7 @@ import { CommonModule } from '@angular/common';
 })
 export class ProductFilters {
   @Input({ required: true }) categories: string[] = [];
-  @Input({ required: true }) selectedCategories: Set<string> = new Set();
+  @Input({ required: true }) selectedCategories: Set<string> = new Set<string>();
 
   /**
    * Event emitted when a category checkbox is toggled.

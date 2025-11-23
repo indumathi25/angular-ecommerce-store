@@ -56,7 +56,7 @@ export class ProductDetail implements OnInit {
         this.product.set(data);
         this.isLoading.set(false);
       },
-      error: (err) => {
+      error: () => {
         this.error.set('Failed to load product details.');
         this.isLoading.set(false);
       },
