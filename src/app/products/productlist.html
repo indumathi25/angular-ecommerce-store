@@ -1,6 +1,6 @@
 <div class="min-h-screen bg-gray-50 flex flex-col font-sans">
   <!-- Header -->
-  <app-header (searchChange)="onSearch($event)"></app-header>
+  <app-header [initialSearch]="searchQuery()" (searchChange)="onSearch($event)"></app-header>
 
   <!-- Main Content -->
   <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
@@ -44,6 +44,7 @@
                   class="fill-current h-4 w-4"
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 20 20"
+                  aria-hidden="true"
                 >
                   <path
                     d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"
@@ -56,17 +57,25 @@
 
         <!-- Loading State -->
         @if (isLoading()) {
-        <div class="flex justify-center items-center h-64">
-          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500"></div>
+        <div class="flex justify-center items-center h-64" role="status" aria-label="Loading">
+          <div
+            class="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500"
+            aria-hidden="true"
+          ></div>
         </div>
         }
 
         <!-- Error State -->
         @if (error()) {
-        <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+        <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6" role="alert">
           <div class="flex">
             <div class="flex-shrink-0">
-              <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+              <svg
+                class="h-5 w-5 text-red-400"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                aria-hidden="true"
+              >
                 <path
                   fill-rule="evenodd"
                   d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
@@ -95,6 +104,7 @@
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
+            aria-hidden="true"
           >
             <path
               stroke-linecap="round"

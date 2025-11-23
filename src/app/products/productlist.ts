@@ -30,11 +30,18 @@ import { environment } from '../../environments/environment';
   templateUrl: './productlist.html',
 })
 export class Productlist implements OnInit, OnDestroy {
-  private productService = inject(ProductService);
+  productService = inject(ProductService);
   private searchSubject = new Subject<string>();
   private searchSubscription?: Subscription;
 
-  products: WritableSignal<Product[]> = signal<Product[]>([]);
+  // Use state from ProductService
+  products = this.productService.productsState;
+  selectedCategories = this.productService.selectedCategoriesState;
+  sortOption = this.productService.sortOptionState;
+  currentPage = this.productService.currentPageState;
+  searchQuery = this.productService.searchQueryState;
+
+  // Local UI state
   isLoading: WritableSignal<boolean> = signal<boolean>(true);
   error: WritableSignal<string | null> = signal<string | null>(null);
 
@@ -48,11 +55,7 @@ export class Productlist implements OnInit, OnDestroy {
     return Array.from(uniqueCategories).sort();
   });
 
-  selectedCategories: WritableSignal<Set<string>> = signal<Set<string>>(new Set());
-  sortOption: WritableSignal<string> = signal<string>('featured');
-
   // Pagination
-  currentPage: WritableSignal<number> = signal<number>(1);
   pageSize: WritableSignal<number> = signal<number>(environment.pageSize);
 
   /**
@@ -112,7 +115,11 @@ export class Productlist implements OnInit, OnDestroy {
    * Loads initial products and sets up the search subscription.
    */
   ngOnInit() {
-    this.loadProducts();
+    if (this.productService.isStateInitialized()) {
+      this.isLoading.set(false);
+    } else {
+      this.loadProducts();
+    }
     this.setupSearchSubscription();
   }
 
@@ -135,6 +142,7 @@ export class Productlist implements OnInit, OnDestroy {
         switchMap((query) => {
           this.isLoading.set(true);
           this.currentPage.set(1); // Reset to first page on search
+          this.productService.searchQueryState.set(query); // Persist search query
           return query
             ? this.productService.searchProducts(query)
             : this.productService.getProducts();
@@ -143,6 +151,7 @@ export class Productlist implements OnInit, OnDestroy {
       .subscribe({
         next: (response) => {
           this.products.set(response.products);
+          this.productService.isStateInitialized.set(true);
           this.isLoading.set(false);
         },
         error: () => {
@@ -160,6 +169,7 @@ export class Productlist implements OnInit, OnDestroy {
     this.productService.getProducts().subscribe({
       next: (response) => {
         this.products.set(response.products);
+        this.productService.isStateInitialized.set(true);
         this.isLoading.set(false);
       },
       error: (err) => {

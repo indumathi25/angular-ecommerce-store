@@ -22,6 +22,11 @@ export class Header {
   @Input() showSearch = true;
 
   /**
+   * The initial value for the search input.
+   */
+  @Input() initialSearch = '';
+
+  /**
    * Event emitted when the user types in the search bar.
    * Payload is the current search string.
    */

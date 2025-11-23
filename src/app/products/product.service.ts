@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal, WritableSignal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Product, ProductResponse } from './product.interface';
@@ -8,11 +8,20 @@ import { environment } from '../../environments/environment';
  * Service to manage product-related data operations.
  * Handles fetching products, searching, and retrieving product details.
  * Interacts with the backend proxy via the configured API URL.
+ * Also acts as a state store for the product list view to persist state across navigation.
  */
 @Injectable({ providedIn: 'root' })
 export class ProductService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}/products`;
+
+  // State Management Signals
+  readonly productsState: WritableSignal<Product[]> = signal<Product[]>([]);
+  readonly searchQueryState: WritableSignal<string> = signal<string>('');
+  readonly selectedCategoriesState: WritableSignal<Set<string>> = signal<Set<string>>(new Set());
+  readonly sortOptionState: WritableSignal<string> = signal<string>('featured');
+  readonly currentPageState: WritableSignal<number> = signal<number>(1);
+  readonly isStateInitialized: WritableSignal<boolean> = signal<boolean>(false);
 
   /**
    * Fetches a paginated list of products.
