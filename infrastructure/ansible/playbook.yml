@@ -4,7 +4,7 @@
   become: true
   vars:
     app_dir: /opt/secure-commerce-app
-    repo_url: "https://github.com/atarazavi/Assessment-Indu.git" # Replace with your actual repo URL
+    repo_url: 'https://github.com/atarazavi/Assessment-Indu.git' # Replace with your actual repo URL
     # In a real scenario, use an SSH key for git or pass credentials securely
 
   tasks:
@@ -56,7 +56,7 @@
 
     - name: Create application directory
       file:
-        path: "{{ app_dir }}"
+        path: '{{ app_dir }}'
         state: directory
         owner: ubuntu
         group: ubuntu
@@ -66,19 +66,19 @@
     # Cloning is cleaner if the repo is public or has keys.
     # Here we will use the synchronize module to copy local files (requires rsync on both ends)
     # OR just clone. Let's assume cloning for simplicity, but user needs to update repo URL.
-    
+
     - name: Clone/Update repository
       git:
-        repo: "{{ repo_url }}"
-        dest: "{{ app_dir }}"
+        repo: '{{ repo_url }}'
+        dest: '{{ app_dir }}'
         version: feature/secure-commerce-app
         force: yes
       become_user: ubuntu
 
     - name: Create .env file from example
       copy:
-        src: "{{ app_dir }}/frontend/.env.example"
-        dest: "{{ app_dir }}/frontend/.env"
+        src: '{{ app_dir }}/frontend/.env.example'
+        dest: '{{ app_dir }}/frontend/.env'
         remote_src: yes
         owner: ubuntu
         group: ubuntu
@@ -86,5 +86,5 @@
     - name: Build and Run with Docker Compose
       command: make docker-up
       args:
-        chdir: "{{ app_dir }}/frontend"
+        chdir: '{{ app_dir }}'
       become_user: ubuntu
