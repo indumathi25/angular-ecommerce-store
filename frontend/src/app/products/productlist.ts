@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subject, Subscription } from 'rxjs';
-import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, switchMap, tap } from 'rxjs/operators';
 import { ProductService } from './product.service';
 import { Header } from '../shared/header/header';
 import { Footer } from '../shared/footer/footer';
@@ -138,14 +138,16 @@ export class Productlist implements OnInit, OnDestroy {
       .pipe(
         debounceTime(300),
         distinctUntilChanged(),
-        switchMap((query) => {
+        tap((query) => {
           this.isLoading.set(true);
           this.currentPage.set(1); // Reset to first page on search
           this.productService.searchQueryState.set(query); // Persist search query
-          return query
+        }),
+        switchMap((query) =>
+          query
             ? this.productService.searchProducts(query)
-            : this.productService.getProducts();
-        })
+            : this.productService.getProducts()
+        )
       )
       .subscribe({
         next: (response) => {

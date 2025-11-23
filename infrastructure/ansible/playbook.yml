@@ -1,0 +1,90 @@
+---
+- name: Configure EC2 for Secure Commerce App
+  hosts: app_servers
+  become: true
+  vars:
+    app_dir: /opt/secure-commerce-app
+    repo_url: "https://github.com/atarazavi/Assessment-Indu.git" # Replace with your actual repo URL
+    # In a real scenario, use an SSH key for git or pass credentials securely
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install required system packages
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - git
+          - make
+        state: present
+
+    - name: Add Docker GPG apt Key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker Repository
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu jammy stable
+        state: present
+
+    - name: Install Docker
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-compose-plugin
+        state: present
+
+    - name: Ensure Docker service is running
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Add ubuntu user to docker group
+      user:
+        name: ubuntu
+        groups: docker
+        append: yes
+
+    - name: Create application directory
+      file:
+        path: "{{ app_dir }}"
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+        mode: '0755'
+
+    # Note: For this assessment, we assume we copy files from local or clone.
+    # Cloning is cleaner if the repo is public or has keys.
+    # Here we will use the synchronize module to copy local files (requires rsync on both ends)
+    # OR just clone. Let's assume cloning for simplicity, but user needs to update repo URL.
+    
+    - name: Clone/Update repository
+      git:
+        repo: "{{ repo_url }}"
+        dest: "{{ app_dir }}"
+        version: feature/secure-commerce-app
+        force: yes
+      become_user: ubuntu
+
+    - name: Create .env file from example
+      copy:
+        src: "{{ app_dir }}/frontend/.env.example"
+        dest: "{{ app_dir }}/frontend/.env"
+        remote_src: yes
+        owner: ubuntu
+        group: ubuntu
+
+    - name: Build and Run with Docker Compose
+      command: make docker-up
+      args:
+        chdir: "{{ app_dir }}/frontend"
+      become_user: ubuntu
