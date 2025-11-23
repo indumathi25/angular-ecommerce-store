@@ -186,7 +186,7 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
 To start a local development server, run:
 
 ```bash
-ng serve
+npm start
 ```
 
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
@@ -207,31 +207,37 @@ ng generate --help
 
 ## Building
 
-To build the project run:
+To build and run the application using Docker:
 
 ```bash
-ng build
+npm run docker
+```
+
+To build the project locally, run:
+
+```bash
+npm run build
 ```
 
 This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
 
 ## Running unit tests
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
 
 ```bash
-ng test
+npm test
 ```
 
-## Running end-to-end tests
+## Running in SSR mode
 
-For end-to-end (e2e) testing, run:
+To run the application in Server-Side Rendering (SSR) mode, use the following command:
 
 ```bash
-ng e2e
+npm run serve:ssr:Assessment-Indu
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+This will build the application and start the Node.js server to serve the SSR version.
 
 ## Additional Resources
 
@@ -244,6 +250,7 @@ For more information on using the Angular CLI, including detailed command refere
 - **Server-Side Rendering (SSR):** Configured with `@angular/ssr` and Express. SSR is enabled specifically for the **Product List** page (`/products`) to improve initial load performance. Other routes (Login, Product Detail) use Client-Side Rendering (CSR). The strategy uses **Optimistic SSR**, allowing the server to render the initial HTML structure while the client verifies authentication immediately upon hydration.
 - **Containerization:** Added `Dockerfile` and `docker-compose` for consistent deployment environments.
 - **Testing:** Migrated to **Vitest** for faster unit test execution and better DX compared to Karma/Jasmine.
+- **Tab Synchronization:** Implemented `BroadcastChannel` API in `AuthService` to synchronize authentication state across multiple tabs. If a user logs out in one tab, all other open tabs immediately clear their session and redirect to the login page, preventing security risks from stale sessions.
 
 ### Trade-offs due to timebox
 
@@ -252,6 +259,7 @@ To meet delivery timelines, several architectural simplifications were made:
 - **HttpOnly Cookie Flow:** HttpOnly cookie authentication flow was not fully implemented, even though it is the most secure choice for production. The backend would ideally set a secure `HttpOnly`, `SameSite=Strict`, `Secure` cookie for the session token. Because the challenge/project used a dummy JSON API without real server cookie issuance, the implementation fell back to client-side cookie handling.
 - **Access Limitations:** Because `HttpOnly` cookies cannot be accessed directly in JavaScript, a proper flow (server-set cookie + `/auth/me` endpoint on page load) was not implemented.
 - **Logic Minimization:** Retry, refresh-token, and expiration logic were minimized to keep the initial implementation focused.
+  - _Improvement:_ Implement silent refresh (pre-emptive token renewal), exponential backoff for retries, and request queueing during refresh cycles.
 - **State Management:** No global state management (signals store / NgRx) was included to avoid unnecessary complexity.
 - **Validation:** Input validation and robust API error handling were kept lightweight.
 
@@ -291,5 +299,3 @@ This was not implemented because the backend did not support cookie issuance so 
 | **Accessibility**  | 🟢 100 |
 | **Best Practices** | 🟢 96  |
 | **SEO**            | 🟢 100 |
-
-![Lighthouse Score](image.png)
