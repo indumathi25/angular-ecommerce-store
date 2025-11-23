@@ -175,13 +175,23 @@ Add a short section to your own README (Don't modify this README):
 
 If you have any issues or questions, feel free to reach out to me: a.razavi@nl.aswatson.com
 
-# SecureCommerceApp
+# Secure Commerce App
 
-## Assessment Notes
+This repository contains the source code and infrastructure configuration for the Secure Commerce App.
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.0.
+## Project Structure
 
-## Development server
+- **[frontend/](./frontend/)**: The Angular application source code, including Docker configuration and CI/CD workflows.
+- **[infrastructure/](./infrastructure/)**: Infrastructure as Code (IaC) using Terraform and Ansible to deploy the application to AWS.
+- **[scripts/](./scripts/)**: Contains all the setup scripts used from the Makefile
+
+## Getting Started
+
+### Frontend
+
+Navigate to the `frontend` directory to work on the frontend application code:
+
+#### Development server
 
 To start a local development server, run:
 
@@ -191,7 +201,7 @@ make start
 
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
 
-## Code scaffolding
+#### Code scaffolding
 
 Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
 
@@ -205,7 +215,7 @@ For a complete list of available schematics (such as `components`, `directives`,
 ng generate --help
 ```
 
-## Building
+#### Building
 
 To build and run the application using Docker:
 
@@ -227,7 +237,7 @@ make build
 
 This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
 
-## Running unit tests
+#### Running unit tests
 
 To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
 
@@ -235,7 +245,7 @@ To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use th
 make test
 ```
 
-## Linting
+#### Linting
 
 To run linting checks:
 
@@ -243,7 +253,7 @@ To run linting checks:
 make lint
 ```
 
-## Cleaning
+#### Cleaning
 
 To clean the distribution directory:
 
@@ -251,7 +261,7 @@ To clean the distribution directory:
 make clean
 ```
 
-## Running in SSR mode
+#### Running in SSR mode
 
 To run the application in Server-Side Rendering (SSR) mode, use the following command:
 
@@ -261,11 +271,11 @@ npm run serve:ssr:Assessment-Indu
 
 This will build the application and start the Node.js server to serve the SSR version.
 
-## Additional Resources
+### Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
 
-### Architecture Decisions
+#### Architecture Decisions
 
 - **Standalone Components:** Fully adopted Angular's standalone component architecture for reduced boilerplate and better tree-shaking.
 - **Reactive State with Signals:** Utilized Angular Signals for granular state management (loading, error, data) instead of `NgRx` or `BehaviorSubjects` for simplicity and performance.
@@ -274,7 +284,7 @@ For more information on using the Angular CLI, including detailed command refere
 - **Testing:** Migrated to **Vitest** for faster unit test execution and better DX compared to Karma/Jasmine.
 - **Tab Synchronization:** Implemented `BroadcastChannel` API in `AuthService` to synchronize authentication state across multiple tabs. If a user logs out in one tab, all other open tabs immediately clear their session and redirect to the login page, preventing security risks from stale sessions.
 
-### Trade-offs due to timebox
+#### Trade-offs due to timebox
 
 To meet delivery timelines, several architectural simplifications were made:
 
@@ -287,7 +297,7 @@ To meet delivery timelines, several architectural simplifications were made:
 
 These decisions were made to keep the project within the timebox while still delivering clean, maintainable structure.
 
-### Token Handling Approach
+#### Token Handling Approach
 
 Since the backend uses an external mock API (DummyJSON) that does not support issuing secure HttpOnly cookies for this domain, the app uses a simplified token model:
 
@@ -307,13 +317,13 @@ In production, the recommended approach is:
 
 This was not implemented because the backend did not support cookie issuance so it remains a noted trade-off.
 
-### External Snippets & Adaptations
+#### External Snippets & Adaptations
 
 - **Cookie Utilities:** `getCookie`, `setCookie`, `deleteCookie` functions are standard implementations adapted from MDN/StackOverflow for TypeScript.
 - **Tailwind Setup:** Standard configuration from Tailwind CSS documentation for Angular.
 - **Docker Config:** Standard multi-stage build pattern for Angular SSR applications.
 
-### Environment Configuration
+#### Environment Configuration
 
 The application uses environment variables for configuration.
 
@@ -334,7 +344,7 @@ The application uses environment variables for configuration.
 - `PAGE_SIZE`: Number of items to display per page in lists.
 - `LOW_STOCK_THRESHOLD`: Threshold for displaying low stock warnings.
 
-### CI/CD Pipeline
+#### CI/CD Pipeline
 
 A Continuous Integration (CI) pipeline is configured using GitHub Actions. It runs automatically on every push to the `main` and `feature/*` branches, as well as on pull requests.
 
@@ -346,7 +356,7 @@ The pipeline performs the following checks:
 
 This ensures that all code changes are validated before being merged, maintaining the stability and quality of the codebase.
 
-### Lighthouse Performance Scores
+#### Lighthouse Performance Scores
 
 | Category           | Score  |
 | :----------------- | :----- |
@@ -355,36 +365,32 @@ This ensures that all code changes are validated before being merged, maintainin
 | **Best Practices** | 🟢 96  |
 | **SEO**            | 🟢 100 |
 
-# Secure Commerce App
-
-This repository contains the source code and infrastructure configuration for the Secure Commerce App.
-
-## Project Structure
-
-- **[frontend/](./frontend/)**: The Angular application source code, including Docker configuration and CI/CD workflows.
-- **[infrastructure/](./infrastructure/)**: Infrastructure as Code (IaC) using Terraform and Ansible to deploy the application to AWS.
-
-## Getting Started
-
-### Frontend
-
-Navigate to the `frontend` directory to work on the application:
-
-```bash
-cd frontend
-make install
-make start
-```
-
-See [frontend/README.md](./frontend/README.md) for more details.
-
 ### Infrastructure
 
-Navigate to the `infrastructure` directory to manage AWS resources:
+created the basic infrastructure creation process to deploy this app in AWS using the basic VPC and other network security, EC2, ALB, CLOUDFRONT.
+
+- To automate the dev infra creation, I used the terraform as IAC(Infrastructure as a code) and used Ansible as configuration management tool.
+
+- Navigate to the `infrastructure` directory to manage AWS resources:
+
+- To create infra in AWS, do the aws configure(To setup the AWS credentials) and run
 
 ```bash
-cd infrastructure/terraform
-# Initialize and apply Terraform...
+make deploy
 ```
 
-See [infrastructure/README.md](./infrastructure/README.md) (if available) or the Terraform files for details.
+- To delete infra in AWS, do the aws configure(To setup the AWS credentials) and run
+
+```bash
+make destroy
+```
+
+### scripts
+
+The scripts directory is to make users/developers life easy to perform the code setup on local machine.
+
+- To setup the local machine run
+
+```bash
+make setup-local
+```
