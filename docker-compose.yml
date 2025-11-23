@@ -1,8 +1,8 @@
 services:
   app:
-    build: .
+    build: ./frontend
     ports:
-      - "4000:4000"
+      - '4000:4000'
     environment:
       - PORT=4000
     restart: unless-stopped
