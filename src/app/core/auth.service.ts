@@ -21,9 +21,18 @@ export class AuthService {
 
   private _currentUser = signal<User | null>(null);
   readonly currentUser = this._currentUser.asReadonly();
+  private authChannel: BroadcastChannel | null = null;
 
   constructor() {
     if (isPlatformBrowser(this.platformId)) {
+      // Initialize BroadcastChannel for tab synchronization
+      this.authChannel = new BroadcastChannel('auth_channel');
+      this.authChannel.onmessage = (event) => {
+        if (event.data === 'logout') {
+          this.performLogout(false); // false = don't broadcast again
+        }
+      };
+
       const token = getCookie('accessToken');
       if (token) {
         this.fetchCurrentUser();
@@ -85,10 +94,21 @@ export class AuthService {
    * Redirects to the login page.
    */
   logout() {
+    this.performLogout(true);
+  }
+
+  /**
+   * Internal logout handler.
+   * @param broadcast Whether to notify other tabs about the logout.
+   */
+  private performLogout(broadcast: boolean) {
     this._currentUser.set(null);
     if (isPlatformBrowser(this.platformId)) {
       deleteCookie('accessToken');
       deleteCookie('refreshToken');
+      if (broadcast && this.authChannel) {
+        this.authChannel.postMessage('logout');
+      }
     }
     this.router.navigate(['/login']);
   }
