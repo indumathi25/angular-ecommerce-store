@@ -23,3 +23,19 @@ docker-down:
 
 clean:
 	rm -rf frontend/dist
+
+setup-local:
+	@chmod +x scripts/setup_dev.sh
+	@./scripts/setup_dev.sh
+
+setup-infra:
+	@chmod +x scripts/setup_infra.sh
+	@./scripts/setup_infra.sh
+
+deploy:
+	@chmod +x scripts/deploy.sh
+	@./scripts/deploy.sh
+
+destroy:
+	@chmod +x scripts/destroy.sh
+	@./scripts/destroy.sh
