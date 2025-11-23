@@ -50,3 +50,4 @@ lerna-debug.log*
 .parcel-cache
 dist-ssr
 *.local
+.qodo/
