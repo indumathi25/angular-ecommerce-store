@@ -1,0 +1,79 @@
+<div class="min-h-screen bg-gray-50 flex flex-col font-sans">
+  <app-header [showSearch]="false"></app-header>
+
+  <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+    @if (!error()) {
+    <!-- Back Button -->
+    <button
+      (click)="goBack()"
+      class="mb-6 flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+    >
+      <svg
+        class="w-5 h-5 mr-2"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M10 19l-7-7m0 0l7-7m-7 7h18"
+        />
+      </svg>
+      Back to Products
+    </button>
+    } @if (isLoading()) {
+    <div class="flex justify-center items-center h-64" role="status" aria-label="Loading">
+      <div
+        class="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500"
+        aria-hidden="true"
+      ></div>
+    </div>
+    } @if (error()) {
+    <div class="flex flex-col items-center justify-center min-h-[400px] text-center">
+      <div class="bg-red-50 rounded-full p-4 mb-4">
+        <svg
+          class="h-12 w-12 text-red-500"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          aria-hidden="true"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+          />
+        </svg>
+      </div>
+      <h2 class="text-2xl font-bold text-gray-900 mb-2">Something went wrong</h2>
+      <p class="text-gray-600 mb-8">{{ error() }}</p>
+      <button
+        (click)="goBack()"
+        class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
+      >
+        Back to Products
+      </button>
+    </div>
+    } @if (product(); as p) { @defer (hydrate on idle) {
+    <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 p-8">
+        <!-- Image Section -->
+        <app-product-image [product]="p"></app-product-image>
+
+        <!-- Details Section -->
+        <app-product-info [product]="p"></app-product-info>
+      </div>
+    </div>
+    } }
+  </main>
+
+  @defer (hydrate on viewport) {
+  <app-footer></app-footer>
+  } @placeholder {
+  <div class="h-16 bg-gray-100"></div>
+  }
+</div>
