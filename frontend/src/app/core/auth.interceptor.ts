@@ -4,25 +4,40 @@ import {
   HttpRequest,
   HttpHandlerFn,
 } from '@angular/common/http';
-import { inject, Injector } from '@angular/core';
+import { inject, Injector, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { catchError, switchMap, throwError } from 'rxjs';
-import { getCookie } from './cookie.utils';
 import { AuthService } from './auth.service';
-import { AuthTokenResponse } from './user.interface';
 
 /**
- * Intercepts HTTP requests to add the authentication token.
- * Also handles 401 Unauthorized errors by attempting to refresh the session.
+ * Intercepts HTTP requests.
+ * Since we use a BFF with HttpOnly cookies, we don't need to manually attach tokens.
+ * The browser handles the cookie.
+ * This interceptor primarily handles 401 Unauthorized errors by attempting to refresh the session.
+ *
+ * Token Handling Approach:
+ * - Future calls from HttpClient attach the token from the cookie via this Interceptor (implicitly via browser cookie).
  */
 export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
   const injector = inject(Injector);
-  const token = getCookie('accessToken');
+  const platformId = inject(PLATFORM_ID);
 
-  const authReq = addToken(req, token);
-
-  return next(authReq).pipe(
+  return next(req).pipe(
     catchError((error) => {
+      // Skip 401 handling on Server (SSR) to prevent redirect loops
+      if (!isPlatformBrowser(platformId)) {
+        return throwError(() => error);
+      }
+
       if (error instanceof HttpErrorResponse && error.status === 401) {
+        // Ignore 401s from auth endpoints to prevent loops
+        if (
+          req.url.includes('/auth/login') ||
+          req.url.includes('/auth/refresh') ||
+          req.url.includes('/auth/me')
+        ) {
+          return throwError(() => error);
+        }
         return handle401Error(req, next, injector);
       }
       return throwError(() => error);
@@ -30,35 +45,13 @@ export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
   );
 };
 
-/**
- * Clones the request and adds the Authorization header with the provided token.
- * @param request The original HTTP request.
- * @param token The access token to add.
- * @returns The cloned request with the Authorization header.
- */
-function addToken(request: HttpRequest<unknown>, token: string | null): HttpRequest<unknown> {
-  if (!token) return request;
-  return request.clone({
-    setHeaders: { Authorization: `Bearer ${token}` },
-  });
-}
-
-/**
- * Handles 401 Unauthorized errors.
- * Attempts to refresh the session and retry the original request with the new token.
- * If refresh fails, logs the user out.
- * @param request The original HTTP request that failed.
- * @param next The HTTP handler.
- * @param injector The dependency injector to get AuthService.
- * @returns An Observable of the HTTP event.
- */
 function handle401Error(request: HttpRequest<unknown>, next: HttpHandlerFn, injector: Injector) {
   const authService = injector.get(AuthService);
 
   return authService.refreshSession().pipe(
-    switchMap((newTokens: AuthTokenResponse) => {
-      const newToken = newTokens.accessToken || newTokens.token || '';
-      return next(addToken(request, newToken));
+    switchMap(() => {
+      // Retry the request. The browser will send the new cookie.
+      return next(request);
     }),
     catchError((refreshError) => {
       authService.logout();
