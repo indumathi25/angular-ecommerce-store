@@ -58,7 +58,7 @@ app.post('/api/auth/login', async (req, res) => {
     });
 
     res.json(user);
-  } catch (error) {
+  } catch {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 });
@@ -138,7 +138,7 @@ app.get('/api/auth/me', async (req, res) => {
 
     const user = await response.json();
     res.json(user);
-  } catch (error) {
+  } catch {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 });
@@ -164,7 +164,7 @@ app.use('/api', async (req, res) => {
 
     const data = await response.json();
     res.status(response.status).json(data);
-  } catch (error) {
+  } catch {
     res.status(500).json({ message: 'Proxy Error' });
   }
 });
