@@ -1,15 +1,20 @@
 import { Injectable, inject, signal, PLATFORM_ID } from '@angular/core';
 import { HttpClient, HttpBackend } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { tap, throwError } from 'rxjs';
+import { tap, catchError, of, Observable, map } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
-import { User, AuthTokenResponse } from './user.interface';
-import { getCookie, setCookie, deleteCookie } from './cookie.utils';
+import { User } from './user.interface';
 import { environment } from '../../environments/environment';
 
 /**
- * Service to handle user authentication.
+ * Service to handle user authentication via BFF.
  * Manages login, logout, session refresh, and current user state.
+ *
+ * Token Handling Approach:
+ * 1. User logs in -> BFF sets HttpOnly cookies.
+ * 2. AuthService checks auth status by calling /auth/me (BFF reads cookie).
+ * 3. AuthGuard uses the service to allow or block routes.
+ * 4. Future calls from HttpClient go to BFF, which attaches the token from the cookie.
  */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -33,19 +38,13 @@ export class AuthService {
         }
       };
 
-      const token = getCookie('accessToken');
-      if (token) {
-        this.fetchCurrentUser();
-      }
+      // Attempt to restore session on startup
+      this.checkAuth().subscribe();
     }
   }
 
   /**
    * Authenticates the user with username and password.
-   * Stores the access and refresh tokens in cookies upon successful login.
-   * @param username The user's username.
-   * @param password The user's password.
-   * @returns An Observable of the User object.
    */
   login(username: string, password: string) {
     return this.http
@@ -59,53 +58,29 @@ export class AuthService {
       .pipe(
         tap((user: User) => {
           this._currentUser.set(user);
-          if (isPlatformBrowser(this.platformId)) {
-            setCookie('accessToken', user.accessToken, 1);
-            setCookie('refreshToken', user.refreshToken, 7);
-          }
         })
       );
   }
 
   /**
-   * Refreshes the user's session using the refresh token stored in cookies.
-   * @returns An Observable of the new tokens.
+   * Refreshes the user's session using the refresh token (handled by BFF).
    */
   refreshSession() {
-    if (!isPlatformBrowser(this.platformId)) return throwError(() => 'SSR');
-    const refreshToken = getCookie('refreshToken');
-    if (!refreshToken) return throwError(() => 'No refresh token');
-
-    return this.httpClientForRefresh
-      .post<AuthTokenResponse>(`${environment.apiUrl}/auth/refresh`, {
-        refreshToken,
-        expiresInMins: 30,
-      })
-      .pipe(
-        tap((tokens) => {
-          setCookie('accessToken', tokens.accessToken || tokens.token || '', 1);
-          setCookie('refreshToken', tokens.refreshToken, 7);
-        })
-      );
+    return this.httpClientForRefresh.post(`${environment.apiUrl}/auth/refresh`, {});
   }
 
   /**
-   * Logs the user out by clearing the session and removing cookies.
-   * Redirects to the login page.
+   * Logs the user out.
    */
   logout() {
-    this.performLogout(true);
+    this.http.post(`${environment.apiUrl}/auth/logout`, {}).subscribe(() => {
+      this.performLogout(true);
+    });
   }
 
-  /**
-   * Internal logout handler.
-   * @param broadcast Whether to notify other tabs about the logout.
-   */
   private performLogout(broadcast: boolean) {
     this._currentUser.set(null);
     if (isPlatformBrowser(this.platformId)) {
-      deleteCookie('accessToken');
-      deleteCookie('refreshToken');
       if (broadcast && this.authChannel) {
         this.authChannel.postMessage('logout');
       }
@@ -114,43 +89,34 @@ export class AuthService {
   }
 
   /**
-   * Checks if the user is currently authenticated.
-   * @returns True if the user is logged in, false otherwise.
+   * Checks if the user is authenticated by verifying with the server.
+   * Used by AuthGuard.
    */
-  isAuthenticated() {
-    if (this.currentUser()) {
-      return true;
+  checkAuth(): Observable<boolean> {
+    // If we already have a user, we are authenticated
+    if (this.currentUser()) return of(true);
+
+    // If we are on the server (SSR), we can't check cookies easily without passing them through.
+    // Optimistically return true to allow rendering the shell.
+    // The client will re-verify immediately upon hydration.
+    if (!isPlatformBrowser(this.platformId)) {
+      return of(true);
     }
-    if (isPlatformBrowser(this.platformId)) {
-      return !!getCookie('accessToken');
-    }
-    // Allow SSR to render the page; client will verify auth
-    return true;
+
+    return this.http.get<User>(`${environment.apiUrl}/auth/me`).pipe(
+      tap((user) => this._currentUser.set(user)),
+      map(() => true),
+      catchError(() => {
+        this._currentUser.set(null);
+        return of(false);
+      })
+    );
   }
 
   /**
-   * Retrieves the access token from cookies.
-   * @returns The access token string or null if not found.
+   * Synchronous check for current state (used in templates/signals).
    */
-  getToken(): string | null {
-    if (isPlatformBrowser(this.platformId)) {
-      return getCookie('accessToken');
-    }
-    return null;
-  }
-
-  /**
-   * Fetches the current user's profile from the server.
-   * The authentication token is automatically added by the AuthInterceptor.
-   */
-  private fetchCurrentUser() {
-    this.http.get<User>(`${environment.apiUrl}/auth/me`).subscribe({
-      next: (user: User) => {
-        this._currentUser.set(user);
-      },
-      error: () => {
-        this.logout();
-      },
-    });
+  isAuthenticated(): boolean {
+    return !!this.currentUser();
   }
 }
