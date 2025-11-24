@@ -15,6 +15,9 @@ test:
 lint:
 	cd frontend && npm run lint
 
+serve-ssr:
+	node frontend/dist/Assessment-Indu/server/server.mjs
+
 docker-up:
 	docker-compose up --build
 

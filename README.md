@@ -193,13 +193,43 @@ Navigate to the `frontend` directory to work on the frontend application code:
 
 #### Development server
 
-To start a local development server, run:
+To start the application locally using Docker (required for BFF authentication), run:
 
 ```bash
-make start
+make docker-up
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Once the server is running, open your browser and navigate to `http://localhost:4000/`.
+
+#### Running without Docker
+
+If you do not have Docker installed, you must run the backend server manually to handle authentication.
+
+**Option 1: Production Mode (Recommended for testing)**
+1. Build the application:
+   ```bash
+   make build
+   ```
+2. Start the SSR server (BFF):
+   ```bash
+   make serve-ssr
+   ```
+3. Navigate to `http://localhost:4000/`.
+
+**Option 2: Development Mode**
+1. Build the application (required to generate the server file):
+   ```bash
+   make build
+   ```
+2. Open **Terminal 1** and start the backend:
+   ```bash
+   make serve-ssr
+   ```
+3. Open **Terminal 2** and start the frontend dev server:
+   ```bash
+   make start
+   ```
+4. Navigate to `http://localhost:4200/`.
 
 #### Code scaffolding
 
@@ -288,8 +318,6 @@ For more information on using the Angular CLI, including detailed command refere
 
 To meet delivery timelines, several architectural simplifications were made:
 
-- **HttpOnly Cookie Flow:** HttpOnly cookie authentication flow was not fully implemented, even though it is the most secure choice for production. The backend would ideally set a secure `HttpOnly`, `SameSite=Strict`, `Secure` cookie for the session token. Because the challenge/project used a dummy JSON API without real server cookie issuance, the implementation fell back to client-side cookie handling.
-- **Access Limitations:** Because `HttpOnly` cookies cannot be accessed directly in JavaScript, a proper flow (server-set cookie + `/auth/me` endpoint on page load) was not implemented.
 - **Logic Minimization:** Retry, refresh-token, and expiration logic were minimized to keep the initial implementation focused.
   - _Improvement:_ Implement silent refresh (pre-emptive token renewal), exponential backoff for retries, and request queueing during refresh cycles.
 - **State Management:** No global state management (signals store / NgRx) was included to avoid unnecessary complexity.
@@ -299,23 +327,15 @@ These decisions were made to keep the project within the timebox while still del
 
 #### Token Handling Approach
 
-Since the backend uses an external mock API (DummyJSON) that does not support issuing secure HttpOnly cookies for this domain, the app uses a simplified token model:
+The application implements a **Backend-for-Frontend (BFF)** pattern to handle authentication securely, even though the upstream API (DummyJSON) does not support cookies natively.
 
-- **User logs in** → token stored in client-side `document.cookie`
-- **AuthService** reads the token from the cookie to determine auth status
-- **AuthGuard** uses the service to allow or block routes
-- **Future calls** from `HttpClient` attach the token from the cookie via an Interceptor
+- **User logs in** → Frontend calls BFF `/api/auth/login`.
+- **BFF** calls upstream API, receives token, and sets a secure **HttpOnly** cookie.
+- **AuthService** verifies auth status by calling `/api/auth/me` (BFF reads cookie).
+- **AuthGuard** relies on this server-side verification.
+- **Future calls** from `HttpClient` go to the BFF, which automatically attaches the token from the cookie to the upstream request.
 
-#### What would happen in a real secure implementation?
-
-In production, the recommended approach is:
-
-- Server returns a secure `HttpOnly` cookie
-- Frontend cannot read the cookie (by design)
-- Frontend calls `/auth/me` on startup to verify the session
-- `AuthGuard` relies on server verification rather than local state
-
-This was not implemented because the backend did not support cookie issuance so it remains a noted trade-off.
+This ensures that sensitive tokens are never exposed to client-side JavaScript, mitigating XSS risks.
 
 #### External Snippets & Adaptations
 
