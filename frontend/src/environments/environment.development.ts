@@ -1,6 +1,6 @@
 export const environment = {
   production: false,
   lowStockThreshold: 10,
-  apiUrl: 'https://dummyjson.com',
+  apiUrl: '/api',
   pageSize: 12,
 };
