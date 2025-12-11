@@ -19,8 +19,7 @@ export class AuthService {
   private router = inject(Router);
   private platformId = inject(PLATFORM_ID);
 
-  private _currentUser = signal<User | null>(null);
-  readonly currentUser = this._currentUser.asReadonly();
+  private currentUser = signal<User | null>(null);
   private authChannel: BroadcastChannel | null = null;
 
   constructor() {
@@ -29,7 +28,7 @@ export class AuthService {
       this.authChannel = new BroadcastChannel('auth_channel');
       this.authChannel.onmessage = (event) => {
         if (event.data === 'logout') {
-          this.performLogout(false); // false = don't broadcast again
+          this.performLogout(false);
         }
       };
 
@@ -58,7 +57,7 @@ export class AuthService {
       )
       .pipe(
         tap((user: User) => {
-          this._currentUser.set(user);
+          this.currentUser.set(user);
           if (isPlatformBrowser(this.platformId)) {
             setCookie('accessToken', user.accessToken, 1);
             setCookie('refreshToken', user.refreshToken, 7);
@@ -102,7 +101,7 @@ export class AuthService {
    * @param broadcast Whether to notify other tabs about the logout.
    */
   private performLogout(broadcast: boolean) {
-    this._currentUser.set(null);
+    this.currentUser.set(null);
     if (isPlatformBrowser(this.platformId)) {
       deleteCookie('accessToken');
       deleteCookie('refreshToken');
@@ -146,7 +145,7 @@ export class AuthService {
   private fetchCurrentUser() {
     this.http.get<User>(`${environment.apiUrl}/auth/me`).subscribe({
       next: (user: User) => {
-        this._currentUser.set(user);
+        this.currentUser.set(user);
       },
       error: () => {
         this.logout();

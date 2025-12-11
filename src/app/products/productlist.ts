@@ -136,7 +136,7 @@ export class Productlist implements OnInit, OnDestroy {
   setupSearchSubscription() {
     this.searchSubscription = this.searchSubject
       .pipe(
-        debounceTime(300),
+        debounceTime(1000),
         distinctUntilChanged(),
         switchMap((query) => {
           this.isLoading.set(true);
