@@ -1,7 +1,5 @@
 # SecureCommerceApp
 
-## Assessment Notes
-
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.0.
 
 ## Development server
@@ -96,19 +94,6 @@ For more information on using the Angular CLI, including detailed command refere
 - **Containerization:** Added `Dockerfile` and `docker-compose` for consistent deployment environments.
 - **Testing:** Migrated to **Vitest** for faster unit test execution and better DX compared to Karma/Jasmine.
 - **Tab Synchronization:** Implemented `BroadcastChannel` API in `AuthService` to synchronize authentication state across multiple tabs. If a user logs out in one tab, all other open tabs immediately clear their session and redirect to the login page, preventing security risks from stale sessions.
-
-### Trade-offs due to timebox
-
-To meet delivery timelines, several architectural simplifications were made:
-
-- **HttpOnly Cookie Flow:** HttpOnly cookie authentication flow was not fully implemented, even though it is the most secure choice for production. The backend would ideally set a secure `HttpOnly`, `SameSite=Strict`, `Secure` cookie for the session token. Because the challenge/project used a dummy JSON API without real server cookie issuance, the implementation fell back to client-side cookie handling.
-- **Access Limitations:** Because `HttpOnly` cookies cannot be accessed directly in JavaScript, a proper flow (server-set cookie + `/auth/me` endpoint on page load) was not implemented.
-- **Logic Minimization:** Retry, refresh-token, and expiration logic were minimized to keep the initial implementation focused.
-  - _Improvement:_ Implement silent refresh (pre-emptive token renewal), exponential backoff for retries, and request queueing during refresh cycles.
-- **State Management:** No global state management (signals store / NgRx) was included to avoid unnecessary complexity.
-- **Validation:** Input validation and robust API error handling were kept lightweight.
-
-These decisions were made to keep the project within the timebox while still delivering clean, maintainable structure.
 
 ### Token Handling Approach
 
