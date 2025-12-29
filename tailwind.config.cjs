@@ -1,6 +1,9 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ['./src/**/*.{html,ts,css}'],
+  content: [
+    './src/**/*.{html,ts,css}',
+    './node_modules/@indumathidev/indumathi25-ui-components/**/*.{html,ts,js,mjs}',
+  ],
   theme: {
     extend: {
       colors: {

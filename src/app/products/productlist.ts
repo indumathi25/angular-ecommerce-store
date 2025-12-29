@@ -13,7 +13,7 @@ import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { ProductService } from './product.service';
 import { Header } from '../shared/header/header';
 import { Footer } from '../shared/footer/footer';
-import { ProductCard } from './product-card/product-card';
+import { ProductCard } from '@indumathidev/indumathi25-ui-components';
 import { ProductFilters } from './product-filters/product-filters';
 import { environment } from '../../environments/environment';
 
